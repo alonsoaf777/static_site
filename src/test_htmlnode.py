@@ -58,7 +58,6 @@ class TestParentNode(unittest.TestCase):
         expected = '<a href="https://boot.dev">Click here</a>'
         leafChild = LeafNode(None, "Click here")
         parentNode = ParentNode("a", [leafChild], {'href': 'https://boot.dev'})
-        print(parentNode.to_html())
         self.assertEqual(parentNode.to_html(), expected)
 
 if __name__ == "__main__":
