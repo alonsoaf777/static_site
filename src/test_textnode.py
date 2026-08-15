@@ -1,5 +1,5 @@
 import unittest
-from textnode import TextNode, TextType, text_node_to_html_node
+from textnode import TextNode, TextType, text_node_to_html_node, split_nodes_delimiter
 
 class TestTextNode(unittest.TestCase):
     def test_eq(self):
@@ -55,6 +55,44 @@ class TestTextToHTML(unittest.TestCase):
         expected = '<img src="testurl.com" alt="This is a image node"></img>'
         self.assertEqual(html_node.to_html(), expected)
 
-   
+class TestSplitter(unittest.TestCase):
+    def test_splitter_italic(self):
+        node = TextNode("This is a text with _italic_ words.", TextType.BOLD)
+        nodes = split_nodes_delimiter([node], "", "")
+        self.assertEqual(len(nodes), 3)
+        italic_node = nodes[1]
+        self.assertEqual(italic_node.text_type, TextType.ITALIC)
+    
+    def test_splitter_bold(self):
+        node = TextNode("This is a text with **bold** words.", TextType.BOLD)
+        nodes = split_nodes_delimiter([node], "", "")
+        self.assertEqual(len(nodes), 3)
+        bold_node = nodes[1]
+        self.assertEqual(bold_node.text_type, TextType.BOLD)
+
+    def test_splitter_code(self):
+        node = TextNode("This is a text with 'code' words.", TextType.BOLD)
+        nodes = split_nodes_delimiter([node], "", "")
+        self.assertEqual(len(nodes), 3)
+        code_node = nodes[1]
+        self.assertEqual(code_node.text_type, TextType.CODE)
+    
+    def test_splitter_boundaries(self):
+        node = TextNode("Testing splitter **boundaries**", TextType.BOLD)
+        nodes = split_nodes_delimiter([node], "", "")
+        self.assertEqual(len(nodes), 2)
+        test_node = nodes[1]
+        self.assertEqual(test_node.text_type, TextType.BOLD)
+    
+    def test_big_splitter(self):
+        node = TextNode("This _text has_ all the **existing nodes** for 'testing.'", TextType.BOLD)
+        nodes = split_nodes_delimiter([node], "", "")
+        self.assertEqual(len(nodes), 6)
+
+    def test_incomplete_splliter(self):
+        node = TextNode("This _text type is incomplete.", TextType.ITALIC)
+        with self.assertRaises(Exception):
+            nodes = split_nodes_delimiter([node], "", "")
+
 if __name__ == "__main__":
     unittest.main()
